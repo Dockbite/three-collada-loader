@@ -58,6 +58,9 @@ var ColladaLoader = function () {
     var colladaUp = 'Y';
     var upConversion = null;
 
+    var imagesLoadLength = 0;
+    var imagesLoaded = 0;
+
     function load ( url, readyCallback, progressCallback, failCallback ) {
 
         var length = 0;
@@ -193,9 +196,22 @@ var ColladaLoader = function () {
 
         };
 
+        imagesLoadLength = Object.keys(images || {}).length;
+    
         if ( callBack ) {
 
-            callBack( result );
+            function delayedCallBack() {
+                var renderCheckInterval = 100;
+
+                if (imagesLoaded === imagesLoadLength) {
+                    callBack(result);
+                } else {
+                    setTimeout(delayedCallBack, renderCheckInterval);
+                }
+            }
+            
+            delayedCallBack();
+
 
         }
 
@@ -5183,16 +5199,14 @@ var ColladaLoader = function () {
         return parts.join( '.' );
 
     }
-
+    
     function loadTextureImage ( texture, url ) {
-
         var loader = new THREE.ImageLoader();
 
         loader.load( url, function ( image ) {
-
+            imagesLoaded++;
             texture.image = image;
             texture.needsUpdate = true;
-
         } );
 
     }
